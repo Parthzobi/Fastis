@@ -3,16 +3,17 @@
 //  Fastis
 //
 //  Created by Ilya Kharlamov on 14.04.2020.
-//  Copyright © 2020 DIGITAL RETAIL TECHNOLOGIES, S.L. All rights reserved.
+//  Copyright © 2020 RetailDriver LLC. All rights reserved.
 //
 
-import PrettyCards
 import UIKit
+import SnapKit
+import PrettyCards
 
-final class ShortcutItemView: UIView {
-
+class ShortcutItemView: UIView {
+    
     // MARK: - Outlets
-
+    
     private lazy var container: Card = {
         let card = Card()
         card.backgroundColor = self.config.backgroundColor
@@ -22,25 +23,23 @@ final class ShortcutItemView: UIView {
         card.tapHandler = {
             self.tapHandler?()
         }
-        card.translatesAutoresizingMaskIntoConstraints = false
         return card
     }()
-
+    
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.font = self.config.font
         label.textColor = self.config.textColor
         label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     // MARK: - Variables
-
+    
     private let config: FastisConfig.ShortcutItemView
     internal var tapHandler: (() -> Void)?
-
-    internal var isSelected = false {
+    
+    internal var isSelected: Bool = false {
         didSet {
             guard self.isSelected != oldValue else { return }
             UIView.animate(withDuration: 0.1) {
@@ -49,18 +48,18 @@ final class ShortcutItemView: UIView {
             }
         }
     }
-
+    
     internal var name: String? {
-        get {
-            self.nameLabel.text
-        }
         set {
             self.nameLabel.text = newValue
         }
+        get {
+            return self.nameLabel.text
+        }
     }
-
+    
     // MARK: - Lifecycle
-
+    
     init(config: FastisConfig.ShortcutItemView) {
         self.config = config
         super.init(frame: .zero)
@@ -68,114 +67,45 @@ final class ShortcutItemView: UIView {
         self.configureSubviews()
         self.configureConstraints()
     }
-
-    @available(*, unavailable)
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - Configuration
-
+    
     private func configureUI() {
         self.backgroundColor = .clear
     }
-
+    
     private func configureSubviews() {
         self.container.containerView.addSubview(self.nameLabel)
         self.addSubview(self.container)
     }
-
+    
     private func configureConstraints() {
-        NSLayoutConstraint.activate([
-            self.nameLabel.leftAnchor.constraint(equalTo: self.container.containerView.leftAnchor, constant: self.config.insets.left),
-            self.nameLabel.rightAnchor.constraint(equalTo: self.container.containerView.rightAnchor, constant: -self.config.insets.right),
-            self.nameLabel.topAnchor.constraint(equalTo: self.container.containerView.topAnchor, constant: self.config.insets.top),
-            self.nameLabel.bottomAnchor.constraint(equalTo: self.container.containerView.bottomAnchor, constant: -self.config.insets.bottom)
-        ])
-        NSLayoutConstraint.activate([
-            self.container.leftAnchor.constraint(equalTo: self.leftAnchor),
-            self.container.rightAnchor.constraint(equalTo: self.rightAnchor),
-            self.container.topAnchor.constraint(equalTo: self.topAnchor),
-            self.container.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-        ])
+        self.nameLabel.snp.makeConstraints { (maker) in
+            maker.edges.equalToSuperview().inset(self.config.insets)
+        }
+        self.container.snp.makeConstraints { (maker) in
+            maker.edges.equalToSuperview()
+        }
     }
-
+    
     // MARK: - Actions
-
+    
 }
 
-public extension FastisConfig {
-
-    /**
-     Shortcut item in the bottom view
-
-     Configurable in FastisConfig.``FastisConfig/shortcutItemView-swift.property`` property
-     */
-    struct ShortcutItemView {
-
-        /**
-         Corner radius of item
-
-         Default value — `6pt`
-         */
-        public var cornerRadius: CGFloat = 6
-
-        /**
-         Animation on touch
-
-         Default value — `.zoomOut`
-         */
+extension FastisConfig {
+    public struct ShortcutItemView {
+        public var cornerRadius: CGFloat = 4
         public var tapAnimation: Card.Animation = .zoomOut
-
-        /**
-         Background color of item
-
-         Default value — `.systemBackground`
-         */
-        public var backgroundColor: UIColor = .systemBackground
-
-        /**
-         Background color of item when it value equals selected date
-
-         Default value — `.systemBlue`
-         */
+        public var backgroundColor: UIColor = .white
         public var selectedBackgroundColor: UIColor = .systemBlue
-
-        /**
-         Font of label in item
-
-         Default value — `.systemFont(ofSize: 15, weight: .regular)`
-         */
         public var font: UIFont = .systemFont(ofSize: 15, weight: .regular)
-
-        /**
-         Text color of label in item
-
-         Default value — `.label`
-         */
-        public var textColor: UIColor = .label
-
-        /**
-         Text color of label in item when it value equals selected date
-
-         Default value — `.white`
-         */
+        public var textColor: UIColor = .black
         public var textColorOnSelected: UIColor = .white
-
-        /**
-         Shadow of item
-
-         Default value — `Card.Shadow.small`
-         */
         public var shadow: CardShadowProtocol = Card.Shadow.small
-
-        /**
-         Inner inset of item
-
-         Default value — `UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)`
-         */
-        public var insets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-
+        public var insets: UIEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
     }
-
 }
